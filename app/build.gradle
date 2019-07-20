@@ -1,6 +1,7 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-kapt'
 
 android {
     compileSdkVersion 28
@@ -25,6 +26,15 @@ dependencies {
     implementation Dependencies.kotlinStdlib
     implementation Dependencies.appcompat
     implementation Dependencies.coreKtx
+    implementation Dependencies.okhttp
+    implementation Dependencies.okhttpLogging
+    implementation Dependencies.retrofit
+    implementation Dependencies.rxJavaAdapter
+    implementation Dependencies.moshiConverter
+    implementation Dependencies.rxjava2
+    implementation Dependencies.moshi
+    kapt Dependencies.moshiKotlinCodeGen
+    kaptTest Dependencies.moshiKotlinCodeGen
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test:runner:1.2.0'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
