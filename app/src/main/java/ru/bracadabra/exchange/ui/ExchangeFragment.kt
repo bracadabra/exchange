@@ -1,15 +1,15 @@
-package ru.bracadabra.exchange
+package ru.bracadabra.exchange.ui
 
 import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.Fragment
 import dagger.android.support.AndroidSupportInjection
+import ru.bracadabra.exchange.BaseFragment
 import javax.inject.Inject
 
-class ExchangeFragment : Fragment() {
+class ExchangeFragment : BaseFragment() {
 
     @Inject
     protected lateinit var exchangeViewMode: ExchangeViewModel

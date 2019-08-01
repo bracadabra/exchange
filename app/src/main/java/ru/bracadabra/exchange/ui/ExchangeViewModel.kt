@@ -1,9 +1,9 @@
-package ru.bracadabra.exchange
+package ru.bracadabra.exchange.ui
 
 import androidx.lifecycle.ViewModel
 import io.reactivex.Single
-import ru.bracadabra.exchange.echanger.ExchangerService
-import ru.bracadabra.exchange.echanger.Rates
+import ru.bracadabra.exchange.data.service.ExchangerService
+import ru.bracadabra.exchange.data.service.Rates
 
 class ExchangeViewModel(private val exchangerService: ExchangerService) : ViewModel() {
 

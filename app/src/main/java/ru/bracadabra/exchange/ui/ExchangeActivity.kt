@@ -1,9 +1,10 @@
-package ru.bracadabra.exchange
+package ru.bracadabra.exchange.ui
 
 import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
+import ru.bracadabra.exchange.BaseActivity
+import ru.bracadabra.exchange.R
 
-class ExchangeActivity : AppCompatActivity() {
+class ExchangeActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

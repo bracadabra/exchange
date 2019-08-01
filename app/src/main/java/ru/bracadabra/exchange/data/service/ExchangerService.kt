@@ -1,4 +1,4 @@
-package ru.bracadabra.exchange.echanger
+package ru.bracadabra.exchange.data.service
 
 import io.reactivex.Scheduler
 import io.reactivex.Single

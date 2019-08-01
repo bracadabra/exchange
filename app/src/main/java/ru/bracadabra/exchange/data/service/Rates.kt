@@ -1,4 +1,4 @@
-package ru.bracadabra.exchange.echanger
+package ru.bracadabra.exchange.data.service
 
 import com.squareup.moshi.JsonClass
 

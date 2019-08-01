@@ -1,9 +1,9 @@
-package ru.bracadabra.exchange.echanger.di
+package ru.bracadabra.exchange.data.service.di
 
 import dagger.Module
 import dagger.Provides
 import retrofit2.Retrofit
-import ru.bracadabra.exchange.echanger.ExchangerApi
+import ru.bracadabra.exchange.data.service.ExchangerApi
 import javax.inject.Qualifier
 
 @Qualifier

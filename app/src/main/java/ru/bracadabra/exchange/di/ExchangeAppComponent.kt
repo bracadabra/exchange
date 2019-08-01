@@ -5,7 +5,7 @@ import dagger.BindsInstance
 import dagger.Component
 import dagger.android.AndroidInjectionModule
 import ru.bracadabra.exchange.ExchangeApplication
-import ru.bracadabra.exchange.echanger.di.ExchangerModule
+import ru.bracadabra.exchange.data.service.di.ExchangerModule
 import javax.inject.Singleton
 
 

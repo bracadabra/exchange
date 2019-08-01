@@ -1,4 +1,4 @@
-package ru.bracadabra.exchange.echanger
+package ru.bracadabra.exchange.data.service
 
 import io.reactivex.Single
 import retrofit2.http.GET

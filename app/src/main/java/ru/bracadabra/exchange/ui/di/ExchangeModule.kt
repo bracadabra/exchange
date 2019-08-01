@@ -1,4 +1,4 @@
-package ru.bracadabra.exchange
+package ru.bracadabra.exchange.ui.di
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProviders
@@ -6,7 +6,11 @@ import dagger.Module
 import dagger.Provides
 import dagger.android.ContributesAndroidInjector
 import dagger.multibindings.IntoMap
-import ru.bracadabra.exchange.echanger.ExchangerService
+import ru.bracadabra.exchange.ViewModelFactory
+import ru.bracadabra.exchange.ViewModelKey
+import ru.bracadabra.exchange.data.service.ExchangerService
+import ru.bracadabra.exchange.ui.ExchangeFragment
+import ru.bracadabra.exchange.ui.ExchangeViewModel
 
 @Module(
     includes = [
