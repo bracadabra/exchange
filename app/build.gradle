@@ -24,17 +24,31 @@ android {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation Dependencies.kotlinStdlib
+
     implementation Dependencies.appcompat
     implementation Dependencies.coreKtx
+
+    implementation Dependencies.archViewModel
+    implementation Dependencies.archExtensions
+
     implementation Dependencies.okhttp
     implementation Dependencies.okhttpLogging
     implementation Dependencies.retrofit
     implementation Dependencies.rxJavaAdapter
-    implementation Dependencies.moshiConverter
-    implementation Dependencies.rxjava2
     implementation Dependencies.moshi
     kapt Dependencies.moshiKotlinCodeGen
+    implementation Dependencies.moshiConverter
+
+    implementation Dependencies.rxJava
+    implementation Dependencies.rxAndroid
+
+    implementation Dependencies.dagger
+    implementation Dependencies.daggerAndroid
+    kapt Dependencies.daggerCompiler
+    kapt Dependencies.daggerProcessor
+
     kaptTest Dependencies.moshiKotlinCodeGen
+    kaptTest Dependencies.daggerCompiler
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test:runner:1.2.0'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
