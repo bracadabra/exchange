@@ -2,7 +2,6 @@ package ru.bracadabra.exchange.utils
 
 import android.content.Context
 import android.graphics.Outline
-import android.graphics.Paint
 import android.os.Build
 import android.util.AttributeSet
 import android.view.View
@@ -14,10 +13,6 @@ class SimpleCircularImageView @JvmOverloads constructor(
         attrs: AttributeSet? = null,
         defStyleAttr: Int = 0
 ) : ImageView(context, attrs, defStyleAttr) {
-
-    private val paint = Paint().apply {
-        isAntiAlias = true
-    }
 
     init {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
