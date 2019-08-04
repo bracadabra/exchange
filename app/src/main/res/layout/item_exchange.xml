@@ -8,11 +8,12 @@
     android:layout_marginLeft="@dimen/common_horizontal_margin"
     android:layout_marginRight="@dimen/common_horizontal_margin">
 
-    <ImageView
+    <ru.bracadabra.exchange.utils.SimpleCircularImageView
+        android:id="@+id/exchange_currency_flag"
         android:layout_width="56dp"
         android:layout_height="56dp"
         android:layout_gravity="center_vertical"
-        android:background="@android:color/darker_gray" />
+        tools:src="@drawable/_aed" />
 
     <LinearLayout
         android:layout_width="wrap_content"
@@ -28,6 +29,7 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="4dp"
             android:textAppearance="@style/TextAppearance.AppCompat.Title"
+            android:textColor="?android:textColorPrimary"
             tools:text="EUR" />
 
         <TextView
@@ -35,6 +37,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+            android:textColor="?android:textColorSecondary"
             tools:text="Euro" />
 
     </LinearLayout>
@@ -52,6 +55,7 @@
         android:gravity="end"
         android:hint="0"
         android:textAppearance="@style/TextAppearance.AppCompat.Display1"
+        android:textSize="30sp"
         android:inputType="number"
         android:importantForAutofill="no"
         tools:ignore="HardcodedText" />

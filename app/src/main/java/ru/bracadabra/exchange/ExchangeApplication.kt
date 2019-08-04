@@ -6,6 +6,7 @@ import dagger.android.AndroidInjector
 import dagger.android.DispatchingAndroidInjector
 import dagger.android.support.HasSupportFragmentInjector
 import ru.bracadabra.exchange.di.DaggerExchangeAppComponent
+import timber.log.Timber
 import javax.inject.Inject
 
 
@@ -16,6 +17,10 @@ class ExchangeApplication : Application(), HasSupportFragmentInjector {
 
     override fun onCreate() {
         super.onCreate()
+
+        if (BuildConfig.DEBUG) {
+            Timber.plant(Timber.DebugTree())
+        }
 
         DaggerExchangeAppComponent.builder()
             .bind(this)

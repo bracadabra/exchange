@@ -60,6 +60,8 @@ dependencies {
 
     implementation Dependencies.adapterDelegates
 
+    implementation Dependencies.timber
+
     kaptTest Dependencies.moshiKotlinCodeGen
     kaptTest Dependencies.daggerCompiler
     testImplementation 'junit:junit:4.12'

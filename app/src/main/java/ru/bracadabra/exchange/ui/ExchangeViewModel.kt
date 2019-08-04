@@ -5,13 +5,15 @@ import io.reactivex.Observable
 import io.reactivex.Scheduler
 import io.reactivex.rxkotlin.Observables
 import io.reactivex.subjects.PublishSubject
+import ru.bracadabra.exchange.data.CurrenciesFlagsMapper
 import ru.bracadabra.exchange.data.service.ExchangerService
 import ru.bracadabra.exchange.utils.extensions.mapNotNull
 
 class ExchangeViewModel(
         private val exchangerService: ExchangerService,
         private val ioScheduler: Scheduler,
-        private val mainScheduler: Scheduler
+        private val mainScheduler: Scheduler,
+        private val flagsMapper: CurrenciesFlagsMapper
 ) : ViewModel() {
 
     private val currencyValueUpdatesSubject = PublishSubject.create<CharSequence>()
@@ -25,10 +27,23 @@ class ExchangeViewModel(
                 currencyValueUpdates.startWith(0f)
         ) { rates, value ->
             rates.rates
-                    .map { ExchangeRate.Target(it.currency, it.rate * value) }
+                    .map {
+                        ExchangeRate.Target(
+                                it.currency,
+                                it.rate * value,
+                                flagsMapper.mapFlag(it.currency)
+                        )
+                    }
                     .toMutableList<ExchangeRate>()
                     .apply {
-                        add(0, ExchangeRate.Base(DUMMY_BASE, value))
+                        add(
+                                0,
+                                ExchangeRate.Base(
+                                        DUMMY_BASE,
+                                        value,
+                                        flagsMapper.mapFlag(DUMMY_BASE)
+                                )
+                        )
                     }
         }
                 .subscribeOn(ioScheduler)

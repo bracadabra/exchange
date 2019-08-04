@@ -10,6 +10,7 @@ import dagger.multibindings.IntoMap
 import io.reactivex.Scheduler
 import ru.bracadabra.exchange.ViewModelFactory
 import ru.bracadabra.exchange.ViewModelKey
+import ru.bracadabra.exchange.data.CurrenciesFlagsMapper
 import ru.bracadabra.exchange.data.service.ExchangerService
 import ru.bracadabra.exchange.di.IoScheduler
 import ru.bracadabra.exchange.di.MainScheduler
@@ -41,9 +42,10 @@ interface ExchangeModule {
         fun provideExchangeViewModel(
                 exchangerService: ExchangerService,
                 @IoScheduler ioScheduler: Scheduler,
-                @MainScheduler mainScheduler: Scheduler
+                @MainScheduler mainScheduler: Scheduler,
+                flagsMapper: CurrenciesFlagsMapper
         ): ViewModel {
-            return ExchangeViewModel(exchangerService, ioScheduler, mainScheduler)
+            return ExchangeViewModel(exchangerService, ioScheduler, mainScheduler, flagsMapper)
         }
     }
 

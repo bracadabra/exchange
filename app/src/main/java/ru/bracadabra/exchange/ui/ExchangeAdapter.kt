@@ -14,6 +14,7 @@ import kotlinx.android.extensions.LayoutContainer
 import ru.bracadabra.exchange.R
 import javax.inject.Inject
 import kotlinx.android.synthetic.main.item_exchange.exchange_currency_code as codeView
+import kotlinx.android.synthetic.main.item_exchange.exchange_currency_flag as flagView
 import kotlinx.android.synthetic.main.item_exchange.exchange_currency_title as titleView
 import kotlinx.android.synthetic.main.item_exchange.exchange_currency_value as valueView
 
@@ -22,10 +23,19 @@ sealed class ExchangeRate {
 
     abstract val currency: String
     abstract val value: Float
+    abstract val flag: Int
 
-    data class Base(override val currency: String, override val value: Float) : ExchangeRate()
+    data class Base(
+            override val currency: String,
+            override val value: Float,
+            override val flag: Int
+    ) : ExchangeRate()
 
-    data class Target(override val currency: String, override val value: Float) : ExchangeRate()
+    data class Target(
+            override val currency: String,
+            override val value: Float,
+            override val flag: Int
+    ) : ExchangeRate()
 
 }
 
@@ -56,6 +66,7 @@ class ExchangeAdapter @Inject constructor(
         fun bind(rate: ExchangeRate) {
             codeView.text = rate.currency
             titleView.text = rate.currency
+            flagView.setImageResource(rate.flag)
         }
     }
 }
