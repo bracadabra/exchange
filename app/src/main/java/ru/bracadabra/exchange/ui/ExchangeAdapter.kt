@@ -1,6 +1,7 @@
 package ru.bracadabra.exchange.ui
 
 import android.app.Activity
+import android.os.Build
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,6 +13,7 @@ import com.jakewharton.rxbinding2.widget.textChanges
 import io.reactivex.subjects.PublishSubject
 import kotlinx.android.extensions.LayoutContainer
 import ru.bracadabra.exchange.R
+import java.util.*
 import javax.inject.Inject
 import kotlinx.android.synthetic.main.item_exchange.exchange_currency_code as codeView
 import kotlinx.android.synthetic.main.item_exchange.exchange_currency_flag as flagView
@@ -65,7 +67,11 @@ class ExchangeAdapter @Inject constructor(
 
         fun bind(rate: ExchangeRate) {
             codeView.text = rate.currency
-            titleView.text = rate.currency
+            titleView.text = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                Currency.getInstance(rate.currency).getDisplayName(Locale.ENGLISH)
+            } else {
+                rate.currency
+            }
             flagView.setImageResource(rate.flag)
         }
     }

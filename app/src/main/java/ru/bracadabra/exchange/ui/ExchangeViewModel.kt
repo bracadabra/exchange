@@ -8,6 +8,7 @@ import io.reactivex.subjects.PublishSubject
 import ru.bracadabra.exchange.data.CurrenciesFlagsMapper
 import ru.bracadabra.exchange.data.service.ExchangerService
 import ru.bracadabra.exchange.utils.extensions.mapNotNull
+import java.util.concurrent.TimeUnit
 
 class ExchangeViewModel(
         private val exchangerService: ExchangerService,
@@ -23,7 +24,9 @@ class ExchangeViewModel(
 
     fun exchangeRates(): Observable<out List<ExchangeRate>> {
         return Observables.combineLatest(
-                exchangerService.exchangeRates(DUMMY_BASE).toObservable(),
+                exchangerService.exchangeRates(DUMMY_BASE)
+                        .repeatWhen { it.delay(1, TimeUnit.SECONDS) }
+                        .toObservable(),
                 currencyValueUpdates.startWith(0f)
         ) { rates, value ->
             rates.rates
@@ -46,6 +49,7 @@ class ExchangeViewModel(
                         )
                     }
         }
+                .distinctUntilChanged()
                 .subscribeOn(ioScheduler)
                 .observeOn(mainScheduler)
     }
