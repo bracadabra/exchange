@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/common_list_item_height"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    android:layout_marginLeft="@dimen/common_horizontal_margin"
+    android:layout_marginRight="@dimen/common_horizontal_margin">
+
+    <ImageView
+        android:layout_width="56dp"
+        android:layout_height="56dp"
+        android:layout_gravity="center_vertical"
+        android:background="@android:color/darker_gray" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginBottom="2dp"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/exchange_currency_code"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="4dp"
+            android:textAppearance="@style/TextAppearance.AppCompat.Title"
+            tools:text="EUR" />
+
+        <TextView
+            android:id="@+id/exchange_currency_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+            tools:text="Euro" />
+
+    </LinearLayout>
+
+    <Space
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <EditText
+        android:id="@+id/exchange_currency_value"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:minWidth="48dp"
+        android:gravity="end"
+        android:hint="0"
+        android:textAppearance="@style/TextAppearance.AppCompat.Display1"
+        android:inputType="number"
+        android:importantForAutofill="no"
+        tools:ignore="HardcodedText" />
+
+</LinearLayout>

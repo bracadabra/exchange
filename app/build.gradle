@@ -19,6 +19,14 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+    compileOptions {
+        sourceCompatibility 1.8
+        targetCompatibility 1.8
+    }
+}
+
+androidExtensions {
+    experimental = true
 }
 
 dependencies {
@@ -27,6 +35,7 @@ dependencies {
 
     implementation Dependencies.appcompat
     implementation Dependencies.coreKtx
+    implementation Dependencies.recyclerView
 
     implementation Dependencies.archViewModel
     implementation Dependencies.archExtensions
@@ -41,11 +50,15 @@ dependencies {
 
     implementation Dependencies.rxJava
     implementation Dependencies.rxAndroid
+    implementation Dependencies.rxBinding
+    implementation Dependencies.rxKotlin
 
     implementation Dependencies.dagger
     implementation Dependencies.daggerAndroid
     kapt Dependencies.daggerCompiler
     kapt Dependencies.daggerProcessor
+
+    implementation Dependencies.adapterDelegates
 
     kaptTest Dependencies.moshiKotlinCodeGen
     kaptTest Dependencies.daggerCompiler

@@ -1,14 +1,46 @@
 package ru.bracadabra.exchange.ui
 
 import androidx.lifecycle.ViewModel
-import io.reactivex.Single
+import io.reactivex.Observable
+import io.reactivex.Scheduler
+import io.reactivex.rxkotlin.Observables
+import io.reactivex.subjects.PublishSubject
 import ru.bracadabra.exchange.data.service.ExchangerService
-import ru.bracadabra.exchange.data.service.Rates
+import ru.bracadabra.exchange.utils.extensions.mapNotNull
 
-class ExchangeViewModel(private val exchangerService: ExchangerService) : ViewModel() {
+class ExchangeViewModel(
+        private val exchangerService: ExchangerService,
+        private val ioScheduler: Scheduler,
+        private val mainScheduler: Scheduler
+) : ViewModel() {
 
-    fun exchangeRates(base: String): Single<Rates> {
-        return exchangerService.exchangeRates(base)
+    private val currencyValueUpdatesSubject = PublishSubject.create<CharSequence>()
+    private val currencyValueUpdates: Observable<Float> = currencyValueUpdatesSubject.mapNotNull {
+        if (it.isEmpty()) 0f else it.toString().toFloatOrNull()
+    }
+
+    fun exchangeRates(): Observable<out List<ExchangeRate>> {
+        return Observables.combineLatest(
+                exchangerService.exchangeRates(DUMMY_BASE).toObservable(),
+                currencyValueUpdates.startWith(0f)
+        ) { rates, value ->
+            rates.rates
+                    .map { ExchangeRate.Target(it.currency, it.rate * value) }
+                    .toMutableList<ExchangeRate>()
+                    .apply {
+                        add(0, ExchangeRate.Base(DUMMY_BASE, value))
+                    }
+        }
+                .subscribeOn(ioScheduler)
+                .observeOn(mainScheduler)
+    }
+
+    fun updateCurrencyValue(value: CharSequence) {
+        currencyValueUpdatesSubject.onNext(value)
+    }
+
+    companion object {
+        const val DUMMY_BASE = "EUR"
     }
 
 }
