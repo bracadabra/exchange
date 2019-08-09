@@ -14,6 +14,7 @@ import ru.bracadabra.exchange.data.CurrenciesFlagsMapper
 import ru.bracadabra.exchange.data.preference.Preferences
 import ru.bracadabra.exchange.data.service.ExchangerService
 import ru.bracadabra.exchange.data.service.Rate
+import ru.bracadabra.exchange.utils.Separator
 import ru.bracadabra.exchange.utils.extensions.mapNotNull
 import java.io.IOException
 import java.util.concurrent.TimeUnit
@@ -96,7 +97,7 @@ class ExchangeViewModel(
             when {
                 input.isEmpty() -> None
                 else -> input.toString()
-                        .replace(',', '.') // TODO fix with input filter
+                        .replace(Separator.EU, Separator.US)
                         .toFloatOrNull()
                         .toOptional()
             }

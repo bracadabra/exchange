@@ -2,6 +2,8 @@ package ru.bracadabra.exchange.ui
 
 import android.app.Activity
 import android.os.Build
+import android.text.InputFilter
+import android.text.Spanned
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,6 +16,8 @@ import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
 import kotlinx.android.extensions.LayoutContainer
 import ru.bracadabra.exchange.R
+import ru.bracadabra.exchange.utils.Separator
+import java.text.DecimalFormatSymbols
 import java.util.*
 import javax.inject.Inject
 import kotlinx.android.synthetic.main.item_exchange.exchange_currency_code as codeView
@@ -29,6 +33,9 @@ class ExchangeAdapter @Inject constructor(
 ) : RecyclerView.Adapter<ExchangeAdapter.ViewHolder>() {
 
     private val inflater = LayoutInflater.from(context)
+
+    private val filters: Array<InputFilter> =
+            arrayOf(SeparatorFixInputFilter(), CurrencyInputFilter())
 
     private val valueChangesSubject = PublishSubject.create<CharSequence>()
     private val focusChangesSubject = PublishSubject.create<String>()
@@ -68,6 +75,12 @@ class ExchangeAdapter @Inject constructor(
         val rate = items[position]
         val payload = payloads.lastOrNull() as ExchangeRatesPayload?
         holder.bind(rate, payload)
+
+        holder.valueView.filters = if (position == 0) {
+            filters
+        } else {
+            emptyArray()
+        }
     }
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView), LayoutContainer {
@@ -116,7 +129,51 @@ class ExchangeAdapter @Inject constructor(
 
 data class ExchangeRatesPayload(val value: Float)
 
-class ExchangeRatesDiffUtilCallback(
+private class SeparatorFixInputFilter : InputFilter {
+
+    private val useDefault = DecimalFormatSymbols.getInstance().decimalSeparator == Separator.US
+
+    override fun filter(
+            source: CharSequence,
+            start: Int,
+            end: Int,
+            dest: Spanned?,
+            dstart: Int,
+            dend: Int
+    ): CharSequence {
+        return if (useDefault) {
+            source
+        } else {
+            source.toString().replace(Separator.US, Separator.EU)
+        }
+    }
+}
+
+private class CurrencyInputFilter : InputFilter {
+
+    override fun filter(
+            source: CharSequence,
+            start: Int,
+            end: Int,
+            dest: Spanned,
+            dstart: Int,
+            dend: Int
+    ): CharSequence? {
+        val index = SEPARATORS.map { dest.indexOf(it) }.filter { it >= 0 }.max()
+        return if (index == null || dest.length - index <= DECIMAL_SIZE) {
+            source
+        } else {
+            ""
+        }
+    }
+
+    companion object {
+        private val SEPARATORS = listOf(Separator.EU, Separator.US)
+        private const val DECIMAL_SIZE = 2
+    }
+}
+
+private class ExchangeRatesDiffUtilCallback(
         private val oldList: List<ExchangeValue>,
         private val newList: List<ExchangeValue>
 ) : DiffUtil.Callback() {
