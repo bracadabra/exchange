@@ -11,6 +11,7 @@ import io.reactivex.Scheduler
 import ru.bracadabra.exchange.ViewModelFactory
 import ru.bracadabra.exchange.ViewModelKey
 import ru.bracadabra.exchange.data.CurrenciesFlagsMapper
+import ru.bracadabra.exchange.data.preference.Preferences
 import ru.bracadabra.exchange.data.service.ExchangerService
 import ru.bracadabra.exchange.di.IoScheduler
 import ru.bracadabra.exchange.di.MainScheduler
@@ -43,9 +44,16 @@ interface ExchangeModule {
                 exchangerService: ExchangerService,
                 @IoScheduler ioScheduler: Scheduler,
                 @MainScheduler mainScheduler: Scheduler,
-                flagsMapper: CurrenciesFlagsMapper
+                flagsMapper: CurrenciesFlagsMapper,
+                preferences: Preferences
         ): ViewModel {
-            return ExchangeViewModel(exchangerService, ioScheduler, mainScheduler, flagsMapper)
+            return ExchangeViewModel(
+                    exchangerService,
+                    ioScheduler,
+                    mainScheduler,
+                    flagsMapper,
+                    preferences
+            )
         }
     }
 

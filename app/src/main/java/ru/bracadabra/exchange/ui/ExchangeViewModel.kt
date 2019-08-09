@@ -11,6 +11,7 @@ import io.reactivex.exceptions.Exceptions
 import io.reactivex.rxkotlin.Observables
 import io.reactivex.subjects.PublishSubject
 import ru.bracadabra.exchange.data.CurrenciesFlagsMapper
+import ru.bracadabra.exchange.data.preference.Preferences
 import ru.bracadabra.exchange.data.service.ExchangerService
 import ru.bracadabra.exchange.data.service.Rate
 import ru.bracadabra.exchange.utils.extensions.mapNotNull
@@ -21,7 +22,8 @@ class ExchangeViewModel(
         private val exchangerService: ExchangerService,
         private val ioScheduler: Scheduler,
         private val mainScheduler: Scheduler,
-        private val flagsMapper: CurrenciesFlagsMapper
+        private val flagsMapper: CurrenciesFlagsMapper,
+        private val preferences: Preferences
 ) : ViewModel() {
 
     private val currencyValueUpdatesSubject = PublishSubject.create<CharSequence>()
@@ -31,7 +33,7 @@ class ExchangeViewModel(
     private val baseCurrencyUpdates: Observable<String> = baseCurrencyUpdatesSubject
 
     fun exchangeRates(): Observable<out List<ExchangeValue>> {
-        return exchangerService.exchangeRates(DUMMY_BASE)
+        return exchangerService.exchangeRates(preferences.baseCurrency())
                 .subscribeOn(ioScheduler)
                 .flatMapObservable { initial ->
                     val initialRates = initial.rates
@@ -72,11 +74,14 @@ class ExchangeViewModel(
 
     private fun ratesUpdates(base: String): Observable<Map<String, Rate>> {
         return exchangerService.exchangeRates(base)
-                .repeatWhen { it.delay(DUMMY_UPDATE_TIME, TimeUnit.SECONDS) }
+                .repeatWhen { it.delay(preferences.updateTime(), TimeUnit.SECONDS) }
                 .retryWhen { errors ->
                     errors.switchMap { error ->
                         when (error) {
-                            is IOException -> Flowable.timer(DUMMY_UPDATE_TIME, TimeUnit.SECONDS)
+                            is IOException -> Flowable.timer(
+                                    preferences.updateTime(),
+                                    TimeUnit.SECONDS
+                            )
                             else -> throw Exceptions.propagate(error)
                         }
                     }
@@ -129,10 +134,5 @@ class ExchangeViewModel(
     }
 
     private data class ValuesHolder(val values: MutableList<ExchangeValue>, var base: String)
-
-    companion object {
-        const val DUMMY_BASE = "EUR"
-        const val DUMMY_UPDATE_TIME = 1L
-    }
 
 }
