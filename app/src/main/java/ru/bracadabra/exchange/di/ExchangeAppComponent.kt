@@ -6,6 +6,7 @@ import dagger.Component
 import dagger.android.AndroidInjectionModule
 import ru.bracadabra.exchange.ExchangeApplication
 import ru.bracadabra.exchange.data.service.di.ExchangerModule
+import ru.bracadabra.exchange.ui.di.ExchangeModule
 import javax.inject.Singleton
 
 
@@ -16,7 +17,8 @@ import javax.inject.Singleton
         NetworkModule::class,
         ExchangerModule::class,
         SchedulersModule::class,
-        ViewModelFactoryModule::class
+        ViewModelFactoryModule::class,
+        ExchangeModule::class
     ]
 )
 interface ExchangeAppComponent {

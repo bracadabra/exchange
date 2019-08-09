@@ -5,11 +5,12 @@ import android.os.Build
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.EditText
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import com.hannesdorfmann.adapterdelegates4.AbsListItemAdapterDelegate
-import com.hannesdorfmann.adapterdelegates4.ListDelegationAdapter
+import com.jakewharton.rxbinding2.view.focusChanges
 import com.jakewharton.rxbinding2.widget.textChanges
+import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
 import kotlinx.android.extensions.LayoutContainer
 import ru.bracadabra.exchange.R
@@ -21,51 +22,65 @@ import kotlinx.android.synthetic.main.item_exchange.exchange_currency_title as t
 import kotlinx.android.synthetic.main.item_exchange.exchange_currency_value as valueView
 
 
-sealed class ExchangeRate {
-
-    abstract val currency: String
-    abstract val value: Float
-    abstract val flag: Int
-
-    data class Base(
-            override val currency: String,
-            override val value: Float,
-            override val flag: Int
-    ) : ExchangeRate()
-
-    data class Target(
-            override val currency: String,
-            override val value: Float,
-            override val flag: Int
-    ) : ExchangeRate()
-
-}
+data class ExchangeValue(val currency: String, val value: Float?, val flag: Int)
 
 class ExchangeAdapter @Inject constructor(
-        baseDelegate: BaseExchangeAdapterDelegate,
-        targetDelegate: TargetExchangeAdapterDelegate
-) : ListDelegationAdapter<List<ExchangeRate>>() {
+        context: Activity
+) : RecyclerView.Adapter<ExchangeAdapter.ViewHolder>() {
 
-    val valueChanges = baseDelegate.valueChanges
+    private val inflater = LayoutInflater.from(context)
 
-    init {
-        delegatesManager.apply {
-            addDelegate(baseDelegate)
-            addDelegate(targetDelegate)
+    private val valueChangesSubject = PublishSubject.create<CharSequence>()
+    private val focusChangesSubject = PublishSubject.create<String>()
+
+    val valueChanges: Observable<CharSequence> = valueChangesSubject
+    val focusChanges: Observable<String> = focusChangesSubject
+
+    var items: List<ExchangeValue> = emptyList()
+        set(value) {
+            ExchangeRatesDiffUtilCallback(field, value).dispatchesTo(this)
+            field = value
         }
-        super.setItems(emptyList())
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+        return ViewHolder(inflater.inflate(R.layout.item_exchange, parent, false)).apply {
+            valueView.textChanges()
+                    .filter { !freezeUpdate }
+                    .filter { adapterPosition == 0 }
+                    .subscribe(valueChangesSubject)
+            valueView.focusChanges()
+                    .filter { adapterPosition > 0 }
+                    .filter { it }
+                    .map { currentItem.currency }
+                    .subscribe(focusChangesSubject)
+        }
     }
 
-    override fun setItems(items: List<ExchangeRate>) {
-        ExchangeRatesDiffUtilCallback(this.items, items).dispatchesTo(this)
-        super.setItems(items)
+    override fun getItemCount(): Int {
+        return items.size
+    }
+
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        onBindViewHolder(holder, position, emptyList())
+    }
+
+    override fun onBindViewHolder(holder: ViewHolder, position: Int, payloads: List<Any>) {
+        val rate = items[position]
+        val payload = payloads.lastOrNull() as ExchangeRatesPayload?
+        holder.bind(rate, payload)
     }
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView), LayoutContainer {
 
         override val containerView: View = itemView
 
-        fun bind(rate: ExchangeRate) {
+        lateinit var currentItem: ExchangeValue
+
+        var freezeUpdate = false
+
+        fun bind(rate: ExchangeValue, payload: ExchangeRatesPayload?) {
+            currentItem = rate
+
             codeView.text = rate.currency
             titleView.text = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
                 Currency.getInstance(rate.currency).getDisplayName(Locale.ENGLISH)
@@ -73,71 +88,28 @@ class ExchangeAdapter @Inject constructor(
                 rate.currency
             }
             flagView.setImageResource(rate.flag)
-        }
-    }
-}
 
-class BaseExchangeAdapterDelegate @Inject constructor(context: Activity) :
-        AbsListItemAdapterDelegate<ExchangeRate, ExchangeRate, ExchangeAdapter.ViewHolder>() {
-
-    private val inflater = LayoutInflater.from(context)
-
-    private val valueChangesSubject = PublishSubject.create<CharSequence>()
-    val valueChanges = valueChangesSubject
-
-    override fun onCreateViewHolder(parent: ViewGroup): ExchangeAdapter.ViewHolder {
-        return ExchangeAdapter.ViewHolder(inflater.inflate(R.layout.item_exchange, parent, false))
-                .apply {
-                    valueView.textChanges().subscribe(valueChangesSubject)
+            if (!valueView.isFocused) {
+                val formattedValue = when {
+                    payload?.value == 0f || rate.value == null -> null
+                    else -> formatValue(rate.value)
                 }
-    }
+                valueView.setTextSilently(formattedValue)
+            }
+        }
 
-    override fun isForViewType(
-            item: ExchangeRate,
-            items: List<ExchangeRate>,
-            position: Int
-    ): Boolean {
-        return item is ExchangeRate.Base
-    }
+        private fun EditText.setTextSilently(text: CharSequence?) {
+            freezeUpdate = true
+            setText(text)
+            freezeUpdate = false
+        }
 
-    override fun onBindViewHolder(
-            item: ExchangeRate,
-            holder: ExchangeAdapter.ViewHolder,
-            payloads: List<Any>
-    ) {
-        holder.bind(item)
-    }
-}
-
-class TargetExchangeAdapterDelegate @Inject constructor(context: Activity) :
-        AbsListItemAdapterDelegate<ExchangeRate, ExchangeRate, ExchangeAdapter.ViewHolder>() {
-
-    private val inflater = LayoutInflater.from(context)
-
-    override fun onCreateViewHolder(parent: ViewGroup): ExchangeAdapter.ViewHolder {
-        return ExchangeAdapter.ViewHolder(inflater.inflate(R.layout.item_exchange, parent, false))
-    }
-
-    override fun isForViewType(
-            item: ExchangeRate,
-            items: List<ExchangeRate>,
-            position: Int
-    ): Boolean {
-        return item is ExchangeRate.Target
-    }
-
-    override fun onBindViewHolder(
-            item: ExchangeRate,
-            holder: ExchangeAdapter.ViewHolder,
-            payloads: List<Any>
-    ) {
-        holder.bind(item)
-
-        val payload = payloads.lastOrNull() as ExchangeRatesPayload?
-        if (payload == null || payload.value == 0f) {
-            holder.valueView.text = null
-        } else {
-            holder.valueView.setText(String.format("%.2f", payload.value))
+        private fun formatValue(value: Float): String {
+            return if (value % 1f == 0f) {
+                value.toInt().toString()
+            } else {
+                String.format("%.2f", value)
+            }
         }
     }
 }
@@ -145,8 +117,8 @@ class TargetExchangeAdapterDelegate @Inject constructor(context: Activity) :
 data class ExchangeRatesPayload(val value: Float)
 
 class ExchangeRatesDiffUtilCallback(
-        private val oldList: List<ExchangeRate>,
-        private val newList: List<ExchangeRate>
+        private val oldList: List<ExchangeValue>,
+        private val newList: List<ExchangeValue>
 ) : DiffUtil.Callback() {
 
     override fun areItemsTheSame(oldPosition: Int, newPosition: Int): Boolean {
@@ -158,19 +130,15 @@ class ExchangeRatesDiffUtilCallback(
     override fun getNewListSize() = newList.size
 
     override fun areContentsTheSame(oldPosition: Int, newPosition: Int): Boolean {
-        return if (areItemsTheSame(oldPosition, newPosition)) {
-            oldList[oldPosition].value == newList[newPosition].value
-        } else {
-            false
-        }
+        return oldList[oldPosition].value == newList[newPosition].value
     }
 
     override fun getChangePayload(oldPosition: Int, newPosition: Int): Any {
-        return ExchangeRatesPayload(newList[newPosition].value)
+        return ExchangeRatesPayload(newList[newPosition].value ?: 0f)
     }
 
     fun dispatchesTo(adapter: RecyclerView.Adapter<*>) {
-        DiffUtil.calculateDiff(this).dispatchUpdatesTo(adapter)
+        DiffUtil.calculateDiff(this, true).dispatchUpdatesTo(adapter)
     }
 
 }

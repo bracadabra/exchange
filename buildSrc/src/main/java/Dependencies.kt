@@ -13,7 +13,7 @@ object Versions {
     const val timber = "4.7.1"
     const val dagger = "2.23.2"
     const val recyclerView = "1.0.0"
-    const val adapterDelegates = "4.1.1"
+    const val koptional = "1.6.0"
 }
 
 @Suppress("unused")
@@ -43,11 +43,10 @@ object Dependencies {
     const val moshiConverter = "com.squareup.retrofit2:converter-moshi:${Versions.retrofit}"
 
     const val timber = "com.jakewharton.timber:timber:${Versions.timber}"
+    const val koptional = "com.gojuno.koptional:koptional:${Versions.koptional}"
 
     const val dagger = "com.google.dagger:dagger:${Versions.dagger}"
     const val daggerCompiler = "com.google.dagger:dagger-compiler:${Versions.dagger}"
     const val daggerAndroid = "com.google.dagger:dagger-android-support:${Versions.dagger}"
     const val daggerProcessor = "com.google.dagger:dagger-android-processor:${Versions.dagger}"
-
-    const val adapterDelegates = "com.hannesdorfmann:adapterdelegates4:${Versions.adapterDelegates}"
 }

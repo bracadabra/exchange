@@ -56,7 +56,7 @@
         android:hint="0"
         android:textAppearance="@style/TextAppearance.AppCompat.Display1"
         android:textSize="30sp"
-        android:inputType="number"
+        android:inputType="numberDecimal"
         android:importantForAutofill="no"
         tools:ignore="HardcodedText" />
 

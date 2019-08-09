@@ -42,6 +42,10 @@ class ExchangeFragment : BaseFragment() {
 
                 adapter.valueChanges.subscribe { value ->
                     exchangeViewModel.updateCurrencyValue(value)
+                },
+
+                adapter.focusChanges.subscribe { currency ->
+                    exchangeViewModel.updateBaseCurrency(currency)
                 }
         )
     }

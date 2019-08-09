@@ -63,9 +63,8 @@ dependencies {
     kapt Dependencies.daggerCompiler
     kapt Dependencies.daggerProcessor
 
-    implementation Dependencies.adapterDelegates
-
     implementation Dependencies.timber
+    implementation Dependencies.koptional
 
     kaptTest Dependencies.moshiKotlinCodeGen
     kaptTest Dependencies.daggerCompiler
