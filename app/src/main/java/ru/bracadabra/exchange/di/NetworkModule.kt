@@ -1,6 +1,5 @@
 package ru.bracadabra.exchange.di
 
-import android.app.Application
 import com.squareup.moshi.Moshi
 import dagger.Module
 import dagger.Provides
@@ -16,7 +15,7 @@ object NetworkModule {
 
     @JvmStatic
     @Provides
-    fun provideOkHttpClient(context: Application): OkHttpClient {
+    fun provideOkHttpClient(): OkHttpClient {
         return OkHttpClient.Builder()
             .addInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY))
             .build()

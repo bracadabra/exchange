@@ -67,6 +67,7 @@ dependencies {
 
     implementation Dependencies.timber
     implementation Dependencies.koptional
+    debugImplementation Dependencies.leakCanary
 
     kaptTest Dependencies.moshiKotlinCodeGen
     kaptTest Dependencies.daggerCompiler

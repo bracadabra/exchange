@@ -16,6 +16,7 @@ object Versions {
     const val dagger = "2.23.2"
     const val recyclerView = "1.0.0"
     const val koptional = "1.6.0"
+    const val leakCanary = "2.0-beta-2"
 }
 
 @Suppress("unused")
@@ -48,6 +49,7 @@ object Dependencies {
 
     const val timber = "com.jakewharton.timber:timber:${Versions.timber}"
     const val koptional = "com.gojuno.koptional:koptional:${Versions.koptional}"
+    const val leakCanary = "com.squareup.leakcanary:leakcanary-android:${Versions.leakCanary}"
 
     const val dagger = "com.google.dagger:dagger:${Versions.dagger}"
     const val daggerCompiler = "com.google.dagger:dagger-compiler:${Versions.dagger}"
