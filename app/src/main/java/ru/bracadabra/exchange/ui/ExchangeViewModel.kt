@@ -10,12 +10,14 @@ import io.reactivex.Scheduler
 import io.reactivex.exceptions.Exceptions
 import io.reactivex.rxkotlin.Observables
 import io.reactivex.subjects.PublishSubject
+import ru.bracadabra.exchange.R
 import ru.bracadabra.exchange.data.CurrenciesFlagsMapper
 import ru.bracadabra.exchange.data.preference.Preferences
 import ru.bracadabra.exchange.data.service.ExchangerService
 import ru.bracadabra.exchange.data.service.Rate
 import ru.bracadabra.exchange.utils.Separator
 import ru.bracadabra.exchange.utils.extensions.mapNotNull
+import timber.log.Timber
 import java.io.IOException
 import java.util.concurrent.TimeUnit
 
@@ -33,7 +35,10 @@ class ExchangeViewModel(
     private val baseCurrencyUpdatesSubject = PublishSubject.create<String>()
     private val baseCurrencyUpdates: Observable<String> = baseCurrencyUpdatesSubject
 
-    fun exchangeRates(): Observable<out List<ExchangeValue>> {
+    private val retryRequestSubject = PublishSubject.create<Unit>()
+    private val retryRequest: Observable<Unit> = retryRequestSubject
+
+    fun viewStates(): Observable<ExchangeViewState> {
         return exchangerService.exchangeRates(preferences.baseCurrency())
                 .subscribeOn(ioScheduler)
                 .flatMapObservable { initial ->
@@ -48,13 +53,22 @@ class ExchangeViewModel(
                     }.switchMap { holder ->
                         Observables.combineLatest(
                                 ratesUpdates(holder.base),
-                                currencyValueUpdates(holder.values.first().value)
+                                currencyValueUpdates()
+                                        .startWith(holder.values.first().value.toOptional())
                         ) { rates, (baseValue) ->
                             updateValues(holder.values, rates, baseValue)
                         }
+                                .startWith(holder.values)
+                                .map { it.toList() }
+                                .distinctUntilChanged()
+                                .map<ExchangeViewState> { ExchangeViewState.Ready(it) }
                     }
                 }
                 .observeOn(mainScheduler)
+                .startWith(ExchangeViewState.Progress)
+                .doOnError { Timber.d(it) }
+                .onErrorReturnItem(ExchangeViewState.Error(R.string.exchange_common_error))
+                .repeatWhen { it.switchMap { retryRequest } }
     }
 
     private fun updateValues(
@@ -70,7 +84,7 @@ class ExchangeViewModel(
             }
             values[index] = value.copy(value = newValue)
         }
-        return values.toList()
+        return values
     }
 
     private fun ratesUpdates(base: String): Observable<Map<String, Rate>> {
@@ -92,7 +106,7 @@ class ExchangeViewModel(
                 .toObservable()
     }
 
-    private fun currencyValueUpdates(initial: Float?): Observable<Optional<Float>> {
+    private fun currencyValueUpdates(): Observable<Optional<Float>> {
         return currencyValueUpdates.mapNotNull { input ->
             when {
                 input.isEmpty() -> None
@@ -101,7 +115,7 @@ class ExchangeViewModel(
                         .toFloatOrNull()
                         .toOptional()
             }
-        }.startWith(initial.toOptional())
+        }
     }
 
     private fun Rate.toExchangeRate(value: Float?): ExchangeValue {
@@ -132,6 +146,10 @@ class ExchangeViewModel(
 
     fun updateBaseCurrency(value: String) {
         baseCurrencyUpdatesSubject.onNext(value)
+    }
+
+    fun retryRequest() {
+        retryRequestSubject.onNext(Unit)
     }
 
     private data class ValuesHolder(val values: MutableList<ExchangeValue>, var base: String)

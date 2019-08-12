@@ -58,6 +58,9 @@ class ExchangeAdapter @Inject constructor(
             valueView.focusChanges()
                     .filter { adapterPosition > 0 }
                     .filter { it }
+                    .doOnNext {
+                        valueView.post { valueView.setSelection(valueView.length()) }
+                    }
                     .map { currentItem.currency }
                     .subscribe(focusChangesSubject)
         }
