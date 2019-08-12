@@ -41,6 +41,8 @@ dependencies {
     implementation Dependencies.appcompat
     implementation Dependencies.coreKtx
     implementation Dependencies.recyclerView
+    implementation Dependencies.transition
+    implementation Dependencies.design
 
     implementation Dependencies.archViewModel
     implementation Dependencies.archExtensions

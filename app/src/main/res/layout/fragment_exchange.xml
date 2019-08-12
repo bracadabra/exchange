@@ -6,10 +6,19 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/exchange_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?actionBarSize"
+        android:background="@color/background"
+        android:stateListAnimator="@animator/header_elevation"
+        app:title="@string/app_name" />
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/exchange_rates_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_marginTop="?actionBarSize"
         android:orientation="vertical"
         android:paddingTop="8dp"
         android:paddingBottom="8dp"

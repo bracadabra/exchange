@@ -3,6 +3,8 @@ object Versions {
     const val androidx = "1.0.2"
     const val core = "1.0.2"
     const val arch = "1.1.1"
+    const val transition = "1.1.0"
+    const val design = "1.0.0"
     const val okhttp = "3.12.0"
     const val retrofit = "2.6.0"
     const val rxJava = "2.2.10"
@@ -23,6 +25,8 @@ object Dependencies {
     const val appcompat = "androidx.appcompat:appcompat:${Versions.androidx}"
     const val coreKtx = "androidx.core:core-ktx:${Versions.core}"
     const val recyclerView = "androidx.recyclerview:recyclerview:${Versions.recyclerView}"
+    const val transition = "androidx.transition:transition:${Versions.transition}"
+    const val design = "com.google.android.material:material:${Versions.design}"
 
     const val archViewModel = "android.arch.lifecycle:viewmodel:${Versions.arch}"
     const val archExtensions = "android.arch.lifecycle:extensions:${Versions.arch}"

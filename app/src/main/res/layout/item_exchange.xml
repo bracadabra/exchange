@@ -10,34 +10,30 @@
 
     <ru.bracadabra.exchange.utils.SimpleCircularImageView
         android:id="@+id/exchange_currency_flag"
-        android:layout_width="56dp"
-        android:layout_height="56dp"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
         android:layout_gravity="center_vertical"
-        tools:src="@drawable/_aed" />
+        tools:src="@drawable/_eur" />
 
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginLeft="16dp"
         android:layout_marginRight="16dp"
-        android:layout_marginBottom="2dp"
         android:orientation="vertical">
 
         <TextView
             android:id="@+id/exchange_currency_code"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="4dp"
-            android:textAppearance="@style/TextAppearance.AppCompat.Title"
-            android:textColor="?android:textColorPrimary"
+            android:textAppearance="@style/ItemTitle"
             tools:text="EUR" />
 
         <TextView
             android:id="@+id/exchange_currency_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
-            android:textColor="?android:textColorSecondary"
+            android:textAppearance="@style/ItemDescription"
             tools:text="Euro" />
 
     </LinearLayout>
@@ -54,8 +50,8 @@
         android:minWidth="48dp"
         android:gravity="end"
         android:hint="0"
-        android:textAppearance="@style/TextAppearance.AppCompat.Display1"
-        android:textSize="30sp"
+        android:textColor="@color/primaryText"
+        android:textSize="20sp"
         android:digits="0123456789,."
         android:inputType="numberDecimal"
         android:importantForAutofill="no"
