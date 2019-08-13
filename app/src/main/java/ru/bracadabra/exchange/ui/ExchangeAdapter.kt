@@ -2,6 +2,7 @@ package ru.bracadabra.exchange.ui
 
 import android.app.Activity
 import android.os.Build
+import android.os.Parcelable
 import android.text.InputFilter
 import android.text.Spanned
 import android.view.LayoutInflater
@@ -15,6 +16,7 @@ import com.jakewharton.rxbinding2.widget.textChanges
 import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
 import kotlinx.android.extensions.LayoutContainer
+import kotlinx.android.parcel.Parcelize
 import ru.bracadabra.exchange.R
 import ru.bracadabra.exchange.utils.Separator
 import java.text.DecimalFormatSymbols
@@ -25,8 +27,8 @@ import kotlinx.android.synthetic.main.item_exchange.exchange_currency_flag as fl
 import kotlinx.android.synthetic.main.item_exchange.exchange_currency_title as titleView
 import kotlinx.android.synthetic.main.item_exchange.exchange_currency_value as valueView
 
-
-data class ExchangeValue(val currency: String, val value: Float?, val flag: Int)
+@Parcelize
+data class ExchangeValue(val currency: String, val value: Float?, val flag: Int) : Parcelable
 
 class ExchangeAdapter @Inject constructor(
         context: Activity

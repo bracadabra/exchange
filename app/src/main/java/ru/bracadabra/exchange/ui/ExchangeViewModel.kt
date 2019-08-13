@@ -1,5 +1,7 @@
 package ru.bracadabra.exchange.ui
 
+import android.os.Bundle
+import android.os.Parcelable
 import androidx.lifecycle.ViewModel
 import com.gojuno.koptional.None
 import com.gojuno.koptional.Optional
@@ -7,9 +9,11 @@ import com.gojuno.koptional.toOptional
 import io.reactivex.Flowable
 import io.reactivex.Observable
 import io.reactivex.Scheduler
+import io.reactivex.Single
 import io.reactivex.exceptions.Exceptions
 import io.reactivex.rxkotlin.Observables
 import io.reactivex.subjects.PublishSubject
+import kotlinx.android.parcel.Parcelize
 import ru.bracadabra.exchange.R
 import ru.bracadabra.exchange.data.CurrenciesFlagsMapper
 import ru.bracadabra.exchange.data.preference.Preferences
@@ -38,18 +42,15 @@ class ExchangeViewModel(
     private val retryRequestSubject = PublishSubject.create<Unit>()
     private val retryRequest: Observable<Unit> = retryRequestSubject
 
-    fun viewStates(): Observable<ExchangeViewState> {
-        return exchangerService.exchangeRates(preferences.baseCurrency())
-                .subscribeOn(ioScheduler)
-                .flatMapObservable { initial ->
-                    val initialRates = initial.rates
-                            .map { rate -> rate.toExchangeRate(null) }
-                            .toMutableList()
-                            .addBaseCurrency(initial.base, null)
-                    val orderedRates = ValuesHolder(initialRates, initial.base)
+    private var valuesHolder: ValuesHolder? = null
 
-                    baseCurrencyUpdates.scan(orderedRates) { transfer, base ->
-                        transfer.pinBaseCurrency(base)
+    fun viewStates(): Observable<ExchangeViewState> {
+        return initialRates(preferences.baseCurrency())
+                .doOnSuccess { valuesHolder = it }
+                .subscribeOn(ioScheduler)
+                .flatMapObservable { initialHolder ->
+                    baseCurrencyUpdates.scan(initialHolder) { holder, base ->
+                        holder.pinBaseCurrency(base)
                     }.switchMap { holder ->
                         Observables.combineLatest(
                                 ratesUpdates(holder.base),
@@ -69,6 +70,21 @@ class ExchangeViewModel(
                 .doOnError { Timber.d(it) }
                 .onErrorReturnItem(ExchangeViewState.Error(R.string.exchange_common_error))
                 .repeatWhen { it.switchMap { retryRequest } }
+    }
+
+    private fun initialRates(baseCurrency: String): Single<ValuesHolder> {
+        return if (valuesHolder == null) {
+            exchangerService.exchangeRates(baseCurrency)
+                    .map { rates ->
+                        val initialRates = rates.rates
+                                .map { rate -> rate.toExchangeRate(null) }
+                                .toMutableList()
+                                .addBaseCurrency(rates.base, null)
+                        ValuesHolder(initialRates, rates.base)
+                    }
+        } else {
+            Single.just(valuesHolder)
+        }
     }
 
     private fun updateValues(
@@ -152,6 +168,20 @@ class ExchangeViewModel(
         retryRequestSubject.onNext(Unit)
     }
 
-    private data class ValuesHolder(val values: MutableList<ExchangeValue>, var base: String)
+    fun saveState(outState: Bundle) {
+        valuesHolder?.let { outState.putParcelable(KEY_SAVED_STATE, it) }
+    }
+
+    fun restoreState(savedInstanceState: Bundle?) {
+        savedInstanceState?.let { valuesHolder = it.getParcelable(KEY_SAVED_STATE) }
+    }
+
+    @Parcelize
+    private data class ValuesHolder(val values: MutableList<ExchangeValue>, var base: String) :
+            Parcelable
+
+    companion object {
+        private const val KEY_SAVED_STATE = "key_saved_state"
+    }
 
 }
