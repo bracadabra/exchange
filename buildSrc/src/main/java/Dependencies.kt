@@ -20,6 +20,7 @@ object Versions {
     const val junit = "4.12"
     const val mockito = "2.8.9"
     const val hamcrest = "1.3"
+    const val jsr305 = "3.0.2"
 }
 
 @Suppress("unused")
@@ -62,4 +63,6 @@ object Dependencies {
     const val junit = "junit:junit:${Versions.junit}"
     const val mockito = "org.mockito:mockito-core:${Versions.mockito}"
     const val hamcrest = "org.hamcrest:hamcrest-all:${Versions.hamcrest}"
+
+    const val jsr305 = "com.google.code.findbugs:jsr305:${Versions.jsr305}"
 }

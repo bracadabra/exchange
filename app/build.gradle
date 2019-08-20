@@ -74,4 +74,6 @@ dependencies {
     testImplementation Dependencies.junit
     testImplementation Dependencies.mockito
     testImplementation Dependencies.hamcrest
+
+    implementation Dependencies.jsr305
 }
