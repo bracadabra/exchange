@@ -17,6 +17,9 @@ object Versions {
     const val recyclerView = "1.0.0"
     const val koptional = "1.6.0"
     const val leakCanary = "2.0-beta-2"
+    const val junit = "4.12"
+    const val mockito = "2.8.9"
+    const val hamcrest = "1.3"
 }
 
 @Suppress("unused")
@@ -55,4 +58,8 @@ object Dependencies {
     const val daggerCompiler = "com.google.dagger:dagger-compiler:${Versions.dagger}"
     const val daggerAndroid = "com.google.dagger:dagger-android-support:${Versions.dagger}"
     const val daggerProcessor = "com.google.dagger:dagger-android-processor:${Versions.dagger}"
+
+    const val junit = "junit:junit:${Versions.junit}"
+    const val mockito = "org.mockito:mockito-core:${Versions.mockito}"
+    const val hamcrest = "org.hamcrest:hamcrest-all:${Versions.hamcrest}"
 }

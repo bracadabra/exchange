@@ -35,7 +35,6 @@ androidExtensions {
 }
 
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation Dependencies.kotlinStdlib
 
     implementation Dependencies.appcompat
@@ -71,7 +70,8 @@ dependencies {
 
     kaptTest Dependencies.moshiKotlinCodeGen
     kaptTest Dependencies.daggerCompiler
-    testImplementation 'junit:junit:4.12'
-    androidTestImplementation 'androidx.test:runner:1.2.0'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+
+    testImplementation Dependencies.junit
+    testImplementation Dependencies.mockito
+    testImplementation Dependencies.hamcrest
 }

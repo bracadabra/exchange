@@ -13,6 +13,7 @@ import ru.bracadabra.exchange.ViewModelKey
 import ru.bracadabra.exchange.data.CurrenciesFlagsMapper
 import ru.bracadabra.exchange.data.preference.Preferences
 import ru.bracadabra.exchange.data.service.ExchangerService
+import ru.bracadabra.exchange.di.ComputationScheduler
 import ru.bracadabra.exchange.di.IoScheduler
 import ru.bracadabra.exchange.di.MainScheduler
 import ru.bracadabra.exchange.ui.ExchangeFragment
@@ -43,6 +44,7 @@ interface ExchangeModule {
         fun provideExchangeViewModel(
                 exchangerService: ExchangerService,
                 @IoScheduler ioScheduler: Scheduler,
+                @ComputationScheduler computationScheduler: Scheduler,
                 @MainScheduler mainScheduler: Scheduler,
                 flagsMapper: CurrenciesFlagsMapper,
                 preferences: Preferences
@@ -50,6 +52,7 @@ interface ExchangeModule {
             return ExchangeViewModel(
                     exchangerService,
                     ioScheduler,
+                    computationScheduler,
                     mainScheduler,
                     flagsMapper,
                     preferences

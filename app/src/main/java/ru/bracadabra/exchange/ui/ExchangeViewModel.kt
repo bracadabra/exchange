@@ -28,6 +28,7 @@ import java.util.concurrent.TimeUnit
 class ExchangeViewModel(
         private val exchangerService: ExchangerService,
         private val ioScheduler: Scheduler,
+        private val computationScheduler: Scheduler,
         private val mainScheduler: Scheduler,
         private val flagsMapper: CurrenciesFlagsMapper,
         private val preferences: Preferences
@@ -42,6 +43,7 @@ class ExchangeViewModel(
     private val retryRequestSubject = PublishSubject.create<Unit>()
     private val retryRequest: Observable<Unit> = retryRequestSubject
 
+    @Volatile
     private var valuesHolder: ValuesHolder? = null
 
     fun viewStates(): Observable<ExchangeViewState> {
@@ -53,13 +55,13 @@ class ExchangeViewModel(
                         holder.pinBaseCurrency(base)
                     }.switchMap { holder ->
                         Observables.combineLatest(
-                                ratesUpdates(holder.base),
+                                ratesUpdates(holder.base())
+                                        .startWith(holder.rates()),
                                 currencyValueUpdates()
-                                        .startWith(holder.values.first().value.toOptional())
+                                        .startWith(holder.values().first().value.toOptional())
                         ) { rates, (baseValue) ->
-                            updateValues(holder.values, rates, baseValue)
+                            holder.updateValuesWith(rates, baseValue)
                         }
-                                .startWith(holder.values)
                                 .map { it.toList() }
                                 .distinctUntilChanged()
                                 .map<ExchangeViewState> { ExchangeViewState.Ready(it) }
@@ -76,42 +78,38 @@ class ExchangeViewModel(
         return if (valuesHolder == null) {
             exchangerService.exchangeRates(baseCurrency)
                     .map { rates ->
-                        val initialRates = rates.rates
-                                .map { rate -> rate.toExchangeRate(null) }
+                        val values = rates.rates
+                                .map { rate -> rate.toExchangeValues(null) }
                                 .toMutableList()
                                 .addBaseCurrency(rates.base, null)
-                        ValuesHolder(initialRates, rates.base)
+                        val currenciesToRates = rates.rates.associateByTo(HashMap()) {
+                            it.currency
+                        }
+
+                        ValuesHolder(values, rates.base, currenciesToRates)
                     }
         } else {
             Single.just(valuesHolder)
         }
     }
 
-    private fun updateValues(
-            values: MutableList<ExchangeValue>,
-            rates: Map<String, Rate>,
-            baseValue: Float?
-    ): List<ExchangeValue> {
-        values.forEachIndexed { index, value ->
-            val newValue = when {
-                baseValue == null -> null
-                index == 0 -> baseValue
-                else -> (rates[value.currency]?.rate ?: 1f) * baseValue
-            }
-            values[index] = value.copy(value = newValue)
-        }
-        return values
-    }
-
     private fun ratesUpdates(base: String): Observable<Map<String, Rate>> {
         return exchangerService.exchangeRates(base)
-                .repeatWhen { it.delay(preferences.updateTime(), TimeUnit.SECONDS) }
+                .delay(preferences.updateTime(), TimeUnit.SECONDS, computationScheduler)
+                .repeatWhen {
+                    it.delay(
+                            preferences.updateTime(),
+                            TimeUnit.SECONDS,
+                            computationScheduler
+                    )
+                }
                 .retryWhen { errors ->
                     errors.switchMap { error ->
                         when (error) {
                             is IOException -> Flowable.timer(
                                     preferences.updateTime(),
-                                    TimeUnit.SECONDS
+                                    TimeUnit.SECONDS,
+                                    computationScheduler
                             )
                             else -> throw Exceptions.propagate(error)
                         }
@@ -134,7 +132,7 @@ class ExchangeViewModel(
         }
     }
 
-    private fun Rate.toExchangeRate(value: Float?): ExchangeValue {
+    private fun Rate.toExchangeValues(value: Float?): ExchangeValue {
         return ExchangeValue(currency, value, flagsMapper.mapFlag(currency))
     }
 
@@ -143,16 +141,6 @@ class ExchangeViewModel(
             value: Float?
     ): MutableList<ExchangeValue> {
         add(0, ExchangeValue(base, value, flagsMapper.mapFlag(base)))
-        return this
-    }
-
-    private fun ValuesHolder.pinBaseCurrency(base: String): ValuesHolder {
-        values.find { it.currency == base }?.let {
-            values.remove(it)
-            values.add(0, it)
-            this.base = it.currency
-        }
-
         return this
     }
 
@@ -176,9 +164,61 @@ class ExchangeViewModel(
         savedInstanceState?.let { valuesHolder = it.getParcelable(KEY_SAVED_STATE) }
     }
 
+    /**
+     * This is our database. Just for sake of simplicity.
+     * */
     @Parcelize
-    private data class ValuesHolder(val values: MutableList<ExchangeValue>, var base: String) :
-            Parcelable
+    private data class ValuesHolder(
+            private val values: MutableList<ExchangeValue>,
+            private var base: String,
+            private val rates: HashMap<String, Rate>
+    ) : Parcelable {
+
+        fun base(): String {
+            return synchronized(this) { base }
+        }
+
+        fun values(): List<ExchangeValue> {
+            return synchronized(this) { values.toList() }
+        }
+
+        fun rates(): Map<String, Rate> {
+            return synchronized(this) { rates.toMap() }
+        }
+
+        fun pinBaseCurrency(base: String): ValuesHolder {
+            return synchronized(this) {
+                values.find { it.currency == base }?.let {
+                    values.remove(it)
+                    values.add(0, it)
+                    this.base = it.currency
+                }
+
+                this
+            }
+        }
+
+        fun updateValuesWith(
+                newRates: Map<String, Rate>,
+                baseValue: Float?
+        ): List<ExchangeValue> {
+            return synchronized(this) {
+                values.forEachIndexed { index, value ->
+                    val newValue = when {
+                        baseValue == null -> null
+                        index == 0 -> baseValue
+                        else -> (newRates[value.currency]?.rate ?: 1f) * baseValue
+                    }
+                    values[index] = value.copy(value = newValue)
+                }
+
+                rates.clear()
+                rates.putAll(newRates)
+
+                values
+            }
+        }
+    }
 
     companion object {
         private const val KEY_SAVED_STATE = "key_saved_state"
