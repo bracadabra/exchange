@@ -50,3 +50,26 @@
 # and replaces all potential values with null. Explicitly keeping the interfaces prevents this.
 -if interface * { @retrofit2.http.* <methods>; }
 -keep,allowobfuscation interface <1>
+
+##Moshi
+-dontwarn javax.annotation.**
+-keepclasseswithmembers class * {
+    @com.squareup.moshi.* <methods>;
+}
+-keep @com.squareup.moshi.JsonQualifier interface *
+
+-keepclassmembers class ** {
+    @com.squareup.moshi.FromJson *;
+    @com.squareup.moshi.ToJson *;
+}
+
+-keepclasseswithmembers abstract class * {
+    abstract <methods>;
+    public static com.squareup.moshi.JsonAdapter jsonAdapter(com.squareup.moshi.Moshi);
+}
+
+-keep class **JsonAdapter {
+   <init>(...);
+   <fields>;
+}
+-keepnames @com.squareup.moshi.JsonClass class *
